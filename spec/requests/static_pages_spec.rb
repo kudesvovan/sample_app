@@ -19,15 +19,22 @@ describe "Static pages" do
       let(:user) { FactoryGirl.create(:user) }
       before do
         FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum2")
         sign_in user
         visit root_path
       end
+
+      after(:all)  { user.feed.delete_all }
 
       it "should render the user's feed" do
         user.feed.each do |item|
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
+      end
+
+      describe "right microposts count in sidebar" do
+        it { should have_content(user.microposts.count) }
+        it { should have_content( "2 microposts" ) }
       end
     end
   end
